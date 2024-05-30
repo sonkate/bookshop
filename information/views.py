@@ -6,7 +6,7 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.http import QueryDict
 import json
-
+import bcrypt
 
 # Create your views here.
 # Home page
@@ -15,7 +15,6 @@ def home(request):
     #     {
     #         "name": "son",
     #         "email": "son@gmail.com",
-    #         "lib_code": "JEMSOW",
     #         "pwd": "son123",
     #         "phone_num": "091234233123",
     #         "avatar": "",
@@ -69,16 +68,17 @@ def sign_up(request):
         phone_num = data.get("phone_num")
         avatar = data.get("avatar")
 
+        password = data.get("password")
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         new_user = {
             "name": data.get("name"),
             "email": data.get("email"),
-            "lib_code": data.get("lib_code"),
-            "pwd": data.get("password"),
+            "pwd": hashed_password,
             "phone_num": phone_num if phone_num else "",
             "avatar": avatar if avatar else "",
         }
 
-        if new_user.get("name") and new_user.get("email") and new_user.get("lib_code") and new_user.get("pwd"):
+        if new_user.get("name") and new_user.get("email") and new_user.get("pwd"):
             invalid_email = users_collection.find_one({"email": new_user.get("email")})
             if invalid_email:
                 return JsonResponse({"error": "Email has been used"}, status=409)
@@ -93,22 +93,25 @@ def sign_up(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def sign_in(request):
-    print(request)
     if request.method == "POST":
         body = request.body.decode("utf-8")
         data = json.loads(body)
 
-        login = users_collection.find_one({"email": data.get("email"), "pwd": data.get("password")})
+        email = data.get("email")
+        password = data.get("password")
 
-        if login:
-            return JsonResponse({
-                "message": "Logged in successfully",
-                "data": {"id": str(login.get("_id")), "name": login.get("name")}
-            })
+        user = users_collection.find_one({"email": email})
 
-        return JsonResponse({"error": "Invalid username or password"}, status=404)
+        if user:
+            hashed_password = user.get("pwd")
+            if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
+                return JsonResponse({"message": "Signed in successfully"})
+            else:
+                return JsonResponse({"error": "Invalid password"}, status=401)
+        else:
+            return JsonResponse({"error": "User not found"}, status=404)
 
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def get_user_info(request, id):
     if request.method == "GET":
@@ -121,7 +124,6 @@ def get_user_info(request, id):
                     "name": user.get("name"),
                     "email": user.get("email"),
                     "password": user.get("pwd"),
-                    "lib_code": user.get("lib_code"),
                     "phone_num": user.get("phone_num"),
                     "avatar": user.get("avatar")
                 }
@@ -140,15 +142,13 @@ def update_user_info(request):
         data.pop("id")
 
         if user:
-            # and name and email and pwd and lib_code
+            # and name and email and pwd 
             if not data.get("name"):
                 data["name"] = user.get("name")
             if not data.get("password"):
                 data["pwd"] = user.get("pwd")
             else:
                 data["pwd"] = data.pop("password")
-            if not data.get("lib_code"):
-                data["lib_code"] = user.get("lib_code")
             if not data.get("phone_num"):
                 data["phone_num"] = user.get("phone_num")
             if not data.get("avatar"):

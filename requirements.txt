@@ -6,3 +6,4 @@ python-dotenv==0.21.1
 sqlparse==0.4.4
 typing_extensions==4.7.1
 django-cors-headers==4.1.0
+bcrypt==4.1.3
