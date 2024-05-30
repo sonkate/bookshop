@@ -1,0 +1,11 @@
+search book by id
+search book by name, genre
+add book to wishlist
+remove book from wishlist
+
+buy a book
+get buy book history
+
+login/signup
+get user infor
+update user infor

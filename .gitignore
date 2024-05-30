@@ -1,0 +1,5 @@
+/.env
+/db.sqlite3
+online_library/__pycache__/
+information/__pycache__/
+information/migrations/__pycache__/
