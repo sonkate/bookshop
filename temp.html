@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+    <script>
+        window.onload = function() {
+            document.getElementById('signupForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                var username = document.getElementById('username').value;
+                var email = document.getElementById('email').value;
+                var password = document.getElementById('pwd').value;
+
+                fetch('https://bookshop-arr5.onrender.com/sign_up', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>Sign Up</h2>
+    <form id="signupForm" method="post">
+        <label for="username">Name:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="pwd" name="pwd" required><br>
+        <input type="submit" value="Sign Up">
+    </form>
+</body>
+</html>

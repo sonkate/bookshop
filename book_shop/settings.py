@@ -56,8 +56,8 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [     "http://localhost:8000",     "http://localhost:3000" , "https://library-app-test.vercel.app"]
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = []
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'book_shop.urls'
 
